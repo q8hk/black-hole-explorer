@@ -24,7 +24,8 @@ vec3 sky(vec3 d){
   float star=smoothstep(.045,.0,dist)*step(.972,h)*pow((h-.972)/.028,1.8)*5.;
   float temp=hash21(cell+21.); vec3 tint=mix(vec3(.55,.72,1.),vec3(1.,.72,.42),temp);
   float band=exp(-pow(abs(dot(d,normalize(vec3(.13,.91,.38))))/.12,1.35))*(.018+.035*hash21(cell*.17));
-  vec3 base=vec3(.0015,.003,.006)+band*vec3(.32,.44,.52);
+  float nebula=pow(max(0.,1.-abs(dot(d,normalize(vec3(-.62,.18,.76))))),7.)*(.025+.045*hash21(cell*.09));
+  vec3 base=vec3(.001,.0025,.006)+band*vec3(.25,.42,.62)+nebula*vec3(.35,.08,.42);
   return base+star*tint;
 }
 
@@ -54,9 +55,9 @@ void main(){
   d=vec3(cy*d.x-sy*d.z,d.y,sy*d.x+cy*d.z); d=vec3(d.x,cp*d.y-sp*d.z,sp*d.y+cp*d.z);
   vec4 k=u_tetrad[0]+d.z*u_tetrad[1]+d.x*u_tetrad[2]+d.y*u_tetrad[3];
   vec4 p=gcov(u_camera)*k; vec3 x=u_camera; float maxDrift=0.; float steps=0.; bool captured=false; bool escaped=false;
-  for(int i=0;i<256;i++){
+  for(int i=0;i<320;i++){
     if(i>=u_maxSteps) break; float r=length(x); if(r<u_cutoff){captured=true;break;} if(r>80.){escaped=true;break;}
-    vec3 dx,dp; deriv(x,p,dx,dp); float h=-min(.16,max(.006,.075*max(r-1.75,.08)/max(length(dx),.2)));
+    vec3 dx,dp; deriv(x,p,dx,dp); float h=-min(.8,max(.006,.11*max(r-1.75,.08)/max(length(dx),.2)));
     rk4(x,p,h); maxDrift=max(maxDrift,abs(H(x,p))); steps+=1.; if(any(isnan(x))||any(isinf(x))){captured=true;break;}
   }
   if(u_debug==1){ outColor=vec4(vec3(steps/float(u_maxSteps)),1.); return; }

@@ -11,7 +11,7 @@ import type { Vec3, Vec4 } from './physics/types';
 type ScenarioKey='sgr'|'stellar'|'hundred'|'m87'|'photon'|'isco'|'hover';
 interface Scenario { name:string; mass:number; r:number; timeExp:number; }
 const scenarios:Record<ScenarioKey,Scenario>={
-  sgr:{name:'Sagittarius A*',mass:4.30e6,r:12,timeExp:0}, stellar:{name:'Stellar',mass:10,r:12,timeExp:-3}, hundred:{name:'Intermediate',mass:100,r:12,timeExp:-2},
+  sgr:{name:'Sagittarius A*',mass:4.30e6,r:8,timeExp:1}, stellar:{name:'Stellar',mass:10,r:12,timeExp:-3}, hundred:{name:'Intermediate',mass:100,r:12,timeExp:-2},
   m87:{name:'M87*',mass:6.5e9,r:10,timeExp:2}, photon:{name:'Photon sphere',mass:4.30e6,r:3,timeExp:0}, isco:{name:'ISCO',mass:4.30e6,r:6,timeExp:0}, hover:{name:'Near horizon',mass:4.30e6,r:2.15,timeExp:-1},
 };
 const $=<T extends HTMLElement>(id:string)=>document.getElementById(id) as T;
@@ -24,7 +24,7 @@ let paused=false,timeExp=0,yaw=0,pitch=0,dragging=false,lastPointer:[number,numb
 let state:WorldlineState; let tetrad:[Vec4,Vec4,Vec4,Vec4]; let pulses:Pulse[]=[]; let nextPulseSecond=1; let lastFrame=performance.now(); let toastTimer=0;
 
 function reset(){
-  const s=scenarios[scenarioKey]; const x:Vec3=[s.r,0,0]; const u=staticObserverVelocity(x); state={t:0,tau:0,x,p:lower(x,u)};tetrad=buildTetrad(x,u);mode='station';pulses=[];nextPulseSecond=1;timeExp=s.timeExp;yaw=0;pitch=0;
+  const s=scenarios[scenarioKey]; const x:Vec3=[s.r,0,0]; const u=staticObserverVelocity(x); state={t:0,tau:0,x,p:lower(x,u)};tetrad=buildTetrad(x,u);mode=scenarioKey==='sgr'?'freefall':'station';pulses=[];nextPulseSecond=1;timeExp=s.timeExp;yaw=0;pitch=0;
   $<HTMLInputElement>('time-rate').value=String(timeExp); updateRateLabel(); drawSignals();
 }
 function rate(){return 10**timeExp}
@@ -35,6 +35,7 @@ function observerVelocity():Vec4{return raise(state.x,state.p)}
 function localSpeed():number|null{
   const r=Math.hypot(...state.x);if(r<=2)return null;const g=schwarzschildKSCovariant(state.x);const gamma=-bilinear(g,observerVelocity(),staticObserverVelocity(state.x));return Math.sqrt(Math.max(0,1-1/(gamma*gamma)));
 }
+function dismissMission(){ $('mission-card').classList.add('dismissed') }
 function toast(message:string){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=window.setTimeout(()=>el.classList.remove('show'),1800)}
 
 function setStation(){
@@ -74,9 +75,9 @@ function drawSignals(){
 }
 function frame(now:number){const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;if(!paused)integrate(dt);try{tetrad=buildTetrad(state.x,observerVelocity())}catch{paused=true}renderer.render({camera:state.x,tetrad,yaw,pitch,quality,debug});updateHUD();if(pulses.length)drawSignals();requestAnimationFrame(frame)}
 
-canvas.addEventListener('pointerdown',e=>{dragging=true;lastPointer=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw-=(e.clientX-lastPointer[0])*.004;pitch=Math.max(-1.45,Math.min(1.45,pitch-(e.clientY-lastPointer[1])*.004));lastPointer=[e.clientX,e.clientY]});canvas.addEventListener('pointerup',()=>dragging=false);
-window.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)return;if(e.code==='Space'){paused=!paused;e.preventDefault()}if(e.key==='w')thrust('forward');if(e.key==='s')thrust('back');if(e.key==='a')thrust('left');if(e.key==='d')thrust('right');if(e.key==='f')release();if(e.key==='h')setStation();if(e.key==='g'){debug=(debug+1)%3;toast(debug===0?'Physical image':debug===1?'Debug: integration steps':'Debug: Hamiltonian drift')}});
+canvas.addEventListener('pointerdown',e=>{dismissMission();dragging=true;lastPointer=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw-=(e.clientX-lastPointer[0])*.004;pitch=Math.max(-1.45,Math.min(1.45,pitch-(e.clientY-lastPointer[1])*.004));lastPointer=[e.clientX,e.clientY]});canvas.addEventListener('pointerup',()=>dragging=false);
+window.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)return;dismissMission();if(e.code==='Space'){paused=!paused;e.preventDefault()}if(e.key==='w')thrust('forward');if(e.key==='s')thrust('back');if(e.key==='a')thrust('left');if(e.key==='d')thrust('right');if(e.key==='f')release();if(e.key==='h')setStation();if(e.key==='g'){debug=(debug+1)%3;toast(debug===0?'Physical image':debug===1?'Debug: integration steps':'Debug: Hamiltonian drift')}});
 $('panel-toggle').onclick=()=>$('science-panel').classList.add('open');$('panel-close').onclick=()=>$('science-panel').classList.remove('open');$('pause').onclick=()=>paused=!paused;$('step').onclick=()=>{paused=true;integrate(1/60)};$('reset').onclick=reset;$('release').onclick=release;$('stabilize').onclick=setStation;$('dual-toggle').onclick=()=>$('dual-panel').classList.add('open');$('dual-close').onclick=()=>$('dual-panel').classList.remove('open');
 $<HTMLSelectElement>('scenario').onchange=e=>{scenarioKey=(e.target as HTMLSelectElement).value as ScenarioKey;reset()};$<HTMLSelectElement>('quality').onchange=e=>quality=(e.target as HTMLSelectElement).value as Quality;$<HTMLInputElement>('time-rate').oninput=e=>{timeExp=Number((e.target as HTMLInputElement).value);updateRateLabel()};
 document.querySelectorAll<HTMLButtonElement>('[data-entity]').forEach(b=>b.onclick=()=>{entity=b.dataset.entity as typeof entity;document.querySelectorAll('[data-entity]').forEach(x=>x.classList.toggle('active',x===b));toast(`${entity==='probe'?'Probe':'Astronaut'} scale selected`)});document.querySelectorAll<HTMLButtonElement>('[data-thrust]').forEach(b=>{b.onclick=()=>thrust(b.dataset.thrust as 'forward'|'back'|'left'|'right')});
-reset();$('science-panel').classList.add('open');requestAnimationFrame(frame);
+reset();toast('Engines off — horizon dive initiated');requestAnimationFrame(frame);

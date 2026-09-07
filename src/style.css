@@ -21,6 +21,12 @@ button,select { color:inherit; }
 .center-reticle i { position:absolute; background:#d6f9ff; }
 .center-reticle i:first-child { left:14px; top:4px; width:1px; height:22px; }
 .center-reticle i:last-child { left:4px; top:14px; width:22px; height:1px; }
+.mission-card { position:fixed; z-index:3; left:18px; bottom:18px; width:min(480px,calc(100vw - 36px)); padding:18px 20px; border-radius:5px; transition:opacity .35s ease,transform .35s ease; }
+.mission-card.dismissed { opacity:0; transform:translateY(12px); pointer-events:none; }
+.mission-card h2 { margin:7px 0 5px; font-size:1.05rem; }
+.mission-card p { margin:0; color:#a9bac0; font-size:.82rem; line-height:1.45; }
+.key-guide { display:flex; flex-wrap:wrap; gap:12px; margin-top:13px; color:#8fa4aa; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; }
+kbd { display:inline-block; padding:3px 6px; margin-right:4px; color:var(--cyan); background:rgba(4,12,16,.82); border:1px solid rgba(139,229,240,.28); border-radius:3px; font:600 .66rem ui-monospace,monospace; }
 .science-panel { position:fixed; z-index:6; top:18px; right:18px; bottom:18px; width:min(390px,calc(100vw - 36px)); padding:20px; overflow:auto; border-radius:6px; transform:translateX(calc(100% + 30px)); transition:transform .3s ease; }
 .science-panel.open { transform:translateX(0); }
 .panel-head { display:flex; align-items:flex-start; gap:12px; margin-bottom:18px; }
@@ -63,4 +69,5 @@ summary { color:#e3edef; cursor:pointer; }
   .touch-controls { display:grid; }.bottom-controls { right:8px; left:auto; transform:none; bottom:8px; flex-direction:column; }.bottom-controls button{padding:9px}
   .science-panel { top:8px; right:8px; bottom:8px; width:calc(100vw - 16px); }.dual-panel{right:8px;bottom:70px;width:calc(100vw - 16px)}
   .receiver-readouts { grid-template-columns:1fr; }.receiver-readouts div{border-right:0;border-bottom:1px solid var(--line)}
+  .mission-card { left:8px; bottom:122px; width:calc(100vw - 16px); padding:14px; }.key-guide{gap:8px}.key-guide span:nth-child(n+3){display:none}
 }

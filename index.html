@@ -29,13 +29,20 @@
       </header>
 
       <section class="status-rail glass" aria-label="Primary measurements">
-        <div><span>WORLDLINE</span><b id="worldline">STATION KEEP</b></div>
-        <div><span>AREAL RADIUS</span><b id="radius">12.000 M</b></div>
+        <div><span>WORLDLINE</span><b id="worldline">FREE FALL</b></div>
+        <div><span>AREAL RADIUS</span><b id="radius">8.000 M</b></div>
         <div><span>HORIZON</span><b id="horizon">OUTSIDE</b></div>
         <div><span>LOCAL SPEED</span><b id="speed">0.000 c</b></div>
       </section>
 
       <div class="center-reticle" aria-hidden="true"><i></i><i></i></div>
+
+      <section id="mission-card" class="mission-card glass" aria-label="Opening mission">
+        <span class="eyebrow">MISSION 01 · HORIZON DIVE</span>
+        <h2>You are falling toward Sagittarius A*</h2>
+        <p>Engines are off. Hold the view steady—or fight the fall with local thrusters.</p>
+        <div class="key-guide"><span><kbd>DRAG</kbd> look</span><span><kbd>WASD</kbd> thrust</span><span><kbd>H</kbd> hold</span><span><kbd>F</kbd> fall</span></div>
+      </section>
 
       <aside id="science-panel" class="science-panel glass" aria-label="Scientific controls">
         <div class="panel-head">
@@ -71,9 +78,9 @@
         <label class="field">Render quality
           <select id="quality">
             <option value="low">LOW · 72 steps / 50%</option>
-            <option value="medium" selected>MEDIUM · 112 steps / 67%</option>
-            <option value="high">HIGH · 168 steps / 82%</option>
-            <option value="scientific">SCIENTIFIC · 256 steps / 100%</option>
+            <option value="medium" selected>MEDIUM · 160 steps / 67%</option>
+            <option value="high">HIGH · 240 steps / 82%</option>
+            <option value="scientific">SCIENTIFIC · 320 steps / 100%</option>
           </select>
         </label>
 
@@ -107,7 +114,7 @@
       <div class="bottom-controls">
         <button id="dual-toggle">DUAL OBSERVER</button>
         <button id="step">STEP</button>
-        <button id="reset">RESET</button>
+        <button id="reset">DIVE AGAIN</button>
       </div>
 
       <div class="touch-controls" aria-label="Touch thruster controls">

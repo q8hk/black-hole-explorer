@@ -3,7 +3,7 @@ import type { Vec3, Vec4 } from '../physics/types';
 
 export interface RenderState { camera: Vec3; tetrad: [Vec4,Vec4,Vec4,Vec4]; yaw: number; pitch: number; quality: Quality; debug: number; }
 export type Quality = 'low'|'medium'|'high'|'scientific';
-const qualityMap: Record<Quality,{scale:number;steps:number}> = { low:{scale:.5,steps:72}, medium:{scale:.67,steps:112}, high:{scale:.82,steps:168}, scientific:{scale:1,steps:256} };
+const qualityMap: Record<Quality,{scale:number;steps:number}> = { low:{scale:.5,steps:104}, medium:{scale:.67,steps:160}, high:{scale:.82,steps:240}, scientific:{scale:1,steps:320} };
 
 export class RelativisticRenderer {
   private gl: WebGL2RenderingContext;
