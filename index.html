@@ -52,12 +52,16 @@
 
         <label class="field">Scenario
           <select id="scenario">
-            <option value="sgr">Sagittarius A* · horizon crossing</option>
+            <option value="approach">Approach · default mission</option>
+            <option value="radial">Radial plunge</option>
+            <option value="flyby">Relativistic flyby</option>
+            <option value="encounter">Orbital encounter</option>
+            <option value="circular">Circular orbit · 10M</option>
+            <option value="isco">ISCO · 6M</option>
+            <option value="critical">Near-critical plunge</option>
             <option value="stellar">10 M☉ · tidal encounter</option>
             <option value="hundred">100 M☉ · free fall</option>
             <option value="m87">M87* scale · gentle horizon</option>
-            <option value="photon">Photon sphere demonstration</option>
-            <option value="isco">ISCO radius</option>
             <option value="hover">Near-horizon station keep</option>
           </select>
         </label>
@@ -91,6 +95,8 @@
           <div><span>Required hover a</span><b id="hover-a">—</b></div>
           <div><span>Radial tide / 1.8 m</span><b id="tide">—</b></div>
           <div><span>Constraint |H+½|</span><b id="drift">—</b></div>
+          <div><span>Conserved energy E</span><b id="energy">—</b></div>
+          <div><span>Angular momentum L</span><b id="angular-momentum">—</b></div>
           <div><span>Coordinate chart</span><b>Kerr–Schild (ingoing)</b></div>
           <div><span>Ray model</span><b>Null Hamiltonian · RK4</b></div>
         </div>

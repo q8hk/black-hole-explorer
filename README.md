@@ -10,6 +10,7 @@ A client-side Schwarzschild simulator built around the metric, observer, and geo
 - Metric-orthonormal instantaneous observer tetrad
 - Explicit station keeping with required proper acceleration
 - Engine-off timelike free fall across the event horizon
+- Normalized approach, plunge, flyby, orbital, circular, ISCO, and near-critical trajectory presets
 - Local rapidity-impulse probe/astronaut thrusters
 - Separate observer proper time and coordinate chart
 - Causal once-per-second radial pulse experiment to a distant receiver
@@ -29,6 +30,8 @@ Kerr and accretion-disk milestones are intentionally gated and not represented a
 - `G`: physical image → integration steps → null-Hamiltonian drift
 
 The controls apply small local impulses, then return the object to geodesic motion. “Station keep” is an accelerated worldline and displays the required proper acceleration.
+
+The default mission begins at `r=40M` with an inward local velocity and modest transverse component. Its path is not animated or scripted: the subsequent approach and horizon crossing are produced by the same timelike Hamiltonian integrator used by every preset.
 
 ## Development
 

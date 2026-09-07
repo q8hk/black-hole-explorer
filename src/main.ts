@@ -7,24 +7,29 @@ import { geometricToKm, massTimeSeconds } from './physics/units';
 import { properHoverAcceleration, radialTidalAcceleration } from './physics/observables';
 import { pulseArrivalTime, receivedFrequencyRatio, type Pulse } from './physics/signals';
 import type { Vec3, Vec4 } from './physics/types';
+import { createTrajectoryState,progradeYaw,trajectoryConstants,trajectoryPresets,type TrajectoryKey } from './physics/trajectories';
 
-type ScenarioKey='sgr'|'stellar'|'hundred'|'m87'|'photon'|'isco'|'hover';
-interface Scenario { name:string; mass:number; r:number; timeExp:number; }
+type ScenarioKey=TrajectoryKey|'stellar'|'hundred'|'m87'|'hover';
+interface Scenario { name:string; mass:number; r:number; timeExp:number; trajectory?:TrajectoryKey; }
 const scenarios:Record<ScenarioKey,Scenario>={
-  sgr:{name:'Sagittarius A*',mass:4.30e6,r:8,timeExp:1}, stellar:{name:'Stellar',mass:10,r:12,timeExp:-3}, hundred:{name:'Intermediate',mass:100,r:12,timeExp:-2},
-  m87:{name:'M87*',mass:6.5e9,r:10,timeExp:2}, photon:{name:'Photon sphere',mass:4.30e6,r:3,timeExp:0}, isco:{name:'ISCO',mass:4.30e6,r:6,timeExp:0}, hover:{name:'Near horizon',mass:4.30e6,r:2.15,timeExp:-1},
+  ...Object.fromEntries(Object.values(trajectoryPresets).map(p=>[p.key,{name:p.name,mass:4.30e6,r:p.radius,timeExp:p.key==='approach'?2:0,trajectory:p.key}])) as Record<TrajectoryKey,Scenario>,
+  stellar:{name:'Stellar',mass:10,r:12,timeExp:-3}, hundred:{name:'Intermediate',mass:100,r:12,timeExp:-2},
+  m87:{name:'M87*',mass:6.5e9,r:10,timeExp:2}, hover:{name:'Near horizon',mass:4.30e6,r:2.15,timeExp:-1},
 };
 const $=<T extends HTMLElement>(id:string)=>document.getElementById(id) as T;
 const canvas=$<HTMLCanvasElement>('spacetime');
 let renderer:RelativisticRenderer;
 try{renderer=new RelativisticRenderer(canvas)}catch(error){$('unsupported').hidden=false;throw error}
 
-let scenarioKey:ScenarioKey='sgr', entity:'probe'|'astronaut'='probe', quality:Quality='medium', mode:'station'|'freefall'='station';
+let scenarioKey:ScenarioKey='approach', entity:'probe'|'astronaut'='probe', quality:Quality='medium', mode:'station'|'freefall'='freefall';
 let paused=false,timeExp=0,yaw=0,pitch=0,dragging=false,lastPointer:[number,number]=[0,0],debug=0;
 let state:WorldlineState; let tetrad:[Vec4,Vec4,Vec4,Vec4]; let pulses:Pulse[]=[]; let nextPulseSecond=1; let lastFrame=performance.now(); let toastTimer=0;
 
 function reset(){
-  const s=scenarios[scenarioKey]; const x:Vec3=[s.r,0,0]; const u=staticObserverVelocity(x); state={t:0,tau:0,x,p:lower(x,u)};tetrad=buildTetrad(x,u);mode=scenarioKey==='sgr'?'freefall':'station';pulses=[];nextPulseSecond=1;timeExp=s.timeExp;yaw=0;pitch=0;
+  const s=scenarios[scenarioKey];
+  if(s.trajectory){state=createTrajectoryState(s.trajectory);mode='freefall';yaw=progradeYaw(s.trajectory)}
+  else{const x:Vec3=[s.r,0,0],u=staticObserverVelocity(x);state={t:0,tau:0,x,p:lower(x,u)};mode='station';yaw=0}
+  tetrad=buildTetrad(state.x,observerVelocity());pulses=[];nextPulseSecond=1;timeExp=s.timeExp;pitch=0;
   $<HTMLInputElement>('time-rate').value=String(timeExp); updateRateLabel(); drawSignals();
 }
 function rate(){return 10**timeExp}
@@ -67,6 +72,7 @@ function updateHUD(){
   const s=scenarios[scenarioKey],r=Math.hypot(...state.x),mt=massTimeSeconds(s.mass),v=localSpeed(),tide=radialTidalAcceleration(s.mass,r),hover=properHoverAcceleration(s.mass,r);
   $('proper-time').textContent=`${(state.tau*mt).toFixed(3)} s`;$('worldline').textContent=mode==='station'?'THRUSTING · HOLD':'FREE FALL';$('radius').textContent=`${r.toFixed(3)} M`;$('horizon').textContent=r>2?'OUTSIDE':r>.16?'CROSSED':'MODEL ENDS';$('speed').textContent=v==null?'not defined':`${v.toFixed(4)} c`;
   $('mass').textContent=s.mass>=1e6?`${(s.mass/1e6).toFixed(2)} × 10⁶ M☉`:`${s.mass.toLocaleString()} M☉`;$('rs-ratio').textContent=(r/2).toFixed(4);$('radius-km').textContent=formatDistance(geometricToKm(r,s.mass));$('hover-a').textContent=formatAccel(hover);$('tide').textContent=formatAccel(tide);$('drift').textContent=constraintDrift(state).toExponential(2);$('explanation').textContent=explanation();
+  const constants=trajectoryConstants(state);$('energy').textContent=constants.energy.toFixed(6);$('angular-momentum').textContent=constants.angularMomentum.toFixed(6);
   const last=pulses.at(-1),prev=pulses.at(-2),ratio=last&&prev?receivedFrequencyRatio(prev,last):null;$('pulse-id').textContent=last?`#${last.sequence}${last.arrivalSchwarzschildTime==null?' · trapped':''}`:'—';$('frequency').textContent=ratio==null?'—':ratio.toExponential(3);$('delay').textContent=last?.arrivalSchwarzschildTime==null?'∞ / no arrival':last?`${Math.max(0,(last.arrivalSchwarzschildTime-last.emittedKS)*mt).toFixed(2)} s`:'—';
 }
 function drawSignals(){

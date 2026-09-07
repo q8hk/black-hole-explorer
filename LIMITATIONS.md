@@ -6,6 +6,7 @@
 - The procedural stars are invented and their filtered surface brightness is not photometrically exact. Their paths are still integrated through the metric.
 - The arbitrary moving observer has an instantaneous orthonormal tetrad, but its displayed axes are not yet fully Fermi–Walker transported.
 - Thruster controls are local finite rapidity impulses, not a resolved rocket-engine burn or propellant model.
+- Trajectory preset labels describe numerically validated qualitative outcomes, not closed-form mission designs. The near-critical result is sensitive to floating-point precision and small changes in initial conditions by definition.
 - The dual-observer experiment traces radial outgoing pulses to a static receiver at 80M. It does not yet ray trace an image of an extended probe.
 - A collapse-formed, one-sided black hole is intended. The white-hole region and second asymptotic exterior of maximally extended eternal Schwarzschild spacetime are not visualized.
 - Hawking radiation, backreaction, quantum gravity, self-force, charge, plasma, magnetic fields, radiation transfer, and gravitational waves are outside the model.
