@@ -60,7 +60,7 @@ void main(){
     rk4(x,p,h); maxDrift=max(maxDrift,abs(H(x,p))); steps+=1.; if(any(isnan(x))||any(isinf(x))){captured=true;break;}
   }
   if(u_debug==1){ outColor=vec4(vec3(steps/float(u_maxSteps)),1.); return; }
-  if(u_debug==2){ float e=clamp((log10(maxDrift+1e-9)+9.)/6.,0.,1.); outColor=vec4(e,1.-e,.1,1.); return; }
+  if(u_debug==2){ float e=clamp((log(maxDrift+1e-9)/log(10.)+9.)/6.,0.,1.); outColor=vec4(e,1.-e,.1,1.); return; }
   vec3 col=escaped?sky(normalize(x)):vec3(.00015,.0003,.00045);
   if(!escaped&&!captured) col=mix(col,vec3(.05,.022,.006),.45);
   float vignette=1.-.28*dot(ndc,ndc); col*=vignette;
