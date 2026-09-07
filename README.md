@@ -46,12 +46,14 @@ The built site is in `dist/` and has no runtime external-service dependency.
 On a Raspberry Pi with Docker and the Compose plugin:
 
 ```bash
-sudo hostnamectl set-hostname black-hole-explorer
+sudo install -m 0755 deploy/black-hole-explorer-mdns /usr/local/bin/
+sudo install -m 0644 deploy/black-hole-explorer-mdns.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now black-hole-explorer-mdns.service
 docker compose up -d
-sudo reboot
 ```
 
-Open `http://black-hole-explorer.local`. Raspberry Pi OS advertises the hostname on the local network with mDNS, and the container serves the site on the default HTTP port. The Pi only serves static assets; WebGL2 geodesic integration runs on the visiting device's GPU.
+Open `http://black-hole-explorer.local`. The included systemd service advertises this site-specific mDNS alias without changing the Pi's primary hostname, and the container serves the site on the default HTTP port. The Pi only serves static assets; WebGL2 geodesic integration runs on the visiting device's GPU.
 
 After pulling source changes, rebuild the immutable static image:
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=Publish the Black Hole Explorer local domain
+Requires=avahi-daemon.service
+After=network-online.target avahi-daemon.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/black-hole-explorer-mdns
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
