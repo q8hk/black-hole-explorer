@@ -4,7 +4,7 @@ services:
     image: black-hole-explorer:local
     restart: unless-stopped
     ports:
-      - "8088:80"
+      - "80:80"
     read_only: true
     tmpfs:
       - /var/cache/nginx

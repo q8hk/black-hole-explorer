@@ -46,10 +46,12 @@ The built site is in `dist/` and has no runtime external-service dependency.
 On a Raspberry Pi with Docker and the Compose plugin:
 
 ```bash
+sudo hostnamectl set-hostname black-hole-explorer
 docker compose up -d
+sudo reboot
 ```
 
-Open `http://<raspberry-pi-address>:8088`. The Pi only serves static assets. WebGL2 geodesic integration runs on the visiting device's GPU.
+Open `http://black-hole-explorer.local`. Raspberry Pi OS advertises the hostname on the local network with mDNS, and the container serves the site on the default HTTP port. The Pi only serves static assets; WebGL2 geodesic integration runs on the visiting device's GPU.
 
 After pulling source changes, rebuild the immutable static image:
 
@@ -57,7 +59,7 @@ After pulling source changes, rebuild the immutable static image:
 docker compose up -d --build
 ```
 
-The Compose service uses a read-only filesystem, drops privilege escalation, restarts after reboot, and exposes only port 8088.
+The Compose service uses a read-only filesystem, drops privilege escalation, restarts after reboot, and exposes only port 80.
 
 ## Scientific versioning
 
