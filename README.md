@@ -7,6 +7,9 @@ A client-side Schwarzschild simulator built around the metric, observer, and geo
 - Schwarzschild spacetime in horizon-regular ingoing Cartesian Kerr–Schild coordinates
 - Per-pixel backward null-geodesic integration in WebGL2
 - Deterministic procedural celestial sphere
+- First-person physical observer view plus clearly labeled follow, orbit, and scientific inspection cameras
+- Procedural probe and astronaut representations, trajectory trail, and horizon/photon-sphere/ISCO overlays
+- Optional illustrative thin-disk emission, star-density and exposure controls, and live FPS/quality readout
 - Metric-orthonormal instantaneous observer tetrad
 - Explicit station keeping with required proper acceleration
 - Engine-off timelike free fall across the event horizon
@@ -21,7 +24,9 @@ Kerr and accretion-disk milestones are intentionally gated and not represented a
 
 ## Controls
 
-- Drag / touch the view: look around the local observer frame
+- Drag / touch the first-person view: look around the local observer frame
+- Drag an external view: orbit the inspection camera; mouse wheel changes its distance
+- Camera menu: switch views without changing the physical worldline
 - `W/S`: inward/outward local rapidity impulse
 - `A/D`: lateral local rapidity impulse
 - `F`: engine cutoff / free fall
@@ -31,7 +36,9 @@ Kerr and accretion-disk milestones are intentionally gated and not represented a
 
 The controls apply small local impulses, then return the object to geodesic motion. “Station keep” is an accelerated worldline and displays the required proper acceleration.
 
-The default mission begins at `r=40M` with an inward local velocity and modest transverse component. Its path is not animated or scripted: the subsequent approach and horizon crossing are produced by the same timelike Hamiltonian integrator used by every preset.
+The default mission begins at `r=14M` with an inward local velocity and modest transverse component, looking toward the lens at a playable `10×` time rate. Its path is not animated or scripted: the subsequent approach and horizon crossing are produced by the same timelike Hamiltonian integrator used by every preset.
+
+The first-person camera constructs photons in the observer's local orthonormal tetrad and is the physical view. Follow, orbit, and scientific inspection cameras are Euclidean presentation views of the same computed position; the on-screen label makes that distinction explicit.
 
 ## Development
 
