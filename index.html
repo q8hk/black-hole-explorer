@@ -10,6 +10,7 @@
   <body>
     <main id="app">
       <canvas id="spacetime" aria-label="General-relativistic view from the observer"></canvas>
+      <canvas id="inspection-view" aria-label="Nonphysical external inspection view" hidden></canvas>
       <div id="unsupported" hidden>
         <h1>WebGL2 is required</h1>
         <p>This device cannot run the null-geodesic renderer. Try a current desktop or mobile browser.</p>
@@ -24,9 +25,16 @@
           <span>PROPER TIME τ</span>
           <b id="proper-time">0.000 s</b>
         </div>
+        <label class="camera-switch"><span>CAMERA</span><select id="camera-mode">
+          <option value="first">FIRST PERSON · PHYSICAL</option>
+          <option value="follow">THIRD PERSON · FOLLOW</option>
+          <option value="orbit">THIRD PERSON · ORBIT</option>
+          <option value="inspection">INSPECTION · SCIENTIFIC</option>
+        </select></label>
         <button id="pause" class="icon-button" aria-label="Pause simulation">Ⅱ</button>
         <button id="panel-toggle" class="icon-button" aria-label="Open scientific panel">☰</button>
       </header>
+      <div id="camera-honesty" class="camera-honesty" hidden>NONPHYSICAL INSPECTION CAMERA · SAME WORLDLINE</div>
 
       <section class="status-rail glass" aria-label="Primary measurements">
         <div><span>WORLDLINE</span><b id="worldline">FREE FALL</b></div>
@@ -71,6 +79,20 @@
           <button data-entity="astronaut">ASTRONAUT</button>
         </div>
 
+        <label class="field">Camera orientation
+          <select id="camera-orientation">
+            <option value="free">Free look</option>
+            <option value="prograde">Look along motion</option>
+            <option value="retrograde">Look against motion</option>
+            <option value="radial-in">Radial inward</option>
+            <option value="radial-out">Radial outward</option>
+          </select>
+        </label>
+        <div class="toggle-row">
+          <label><input id="attitude-stabilized" type="checkbox" checked /> Stabilized attitude</label>
+          <label><input id="trajectory-overlays" type="checkbox" checked /> Trajectory overlays</label>
+        </div>
+
         <div class="action-row">
           <button id="release" class="primary">ENGINE CUTOFF · FREE FALL</button>
           <button id="stabilize">STATION KEEP</button>
@@ -87,6 +109,12 @@
             <option value="scientific">SCIENTIFIC · 320 steps / 100%</option>
           </select>
         </label>
+        <label class="field">Star density <output id="star-density-label">65%</output>
+          <input id="star-density" type="range" min="0" max="100" step="5" value="65" />
+        </label>
+        <label class="field">Exposure <output id="exposure-label">1.15×</output>
+          <input id="exposure" type="range" min="50" max="180" step="5" value="115" />
+        </label>
 
         <div class="readout-grid">
           <div><span>Mass</span><b id="mass">4.30 × 10⁶ M☉</b></div>
@@ -99,6 +127,7 @@
           <div><span>Angular momentum L</span><b id="angular-momentum">—</b></div>
           <div><span>Coordinate chart</span><b>Kerr–Schild (ingoing)</b></div>
           <div><span>Ray model</span><b>Null Hamiltonian · RK4</b></div>
+          <div><span>Renderer</span><b id="performance">—</b></div>
         </div>
 
         <details id="explain"><summary>Explain what I’m seeing</summary><p id="explanation"></p></details>

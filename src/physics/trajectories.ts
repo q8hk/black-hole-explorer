@@ -18,7 +18,7 @@ export interface TrajectoryPreset {
 const circularSpeed = (radius:number) => Math.sqrt(1/(radius-2));
 
 export const trajectoryPresets: Record<TrajectoryKey,TrajectoryPreset> = {
-  approach:{key:'approach',name:'Approach',description:'Distant, off-axis approach with a modest impact parameter',radius:40,radialVelocity:-.32,tangentialVelocity:.09,expectedOutcome:'capture'},
+  approach:{key:'approach',name:'Approach',description:'Close, off-axis approach that opens with the lens in view',radius:14,radialVelocity:-.24,tangentialVelocity:.16,expectedOutcome:'capture'},
   radial:{key:'radial',name:'Radial plunge',description:'Near-radial educational horizon crossing',radius:8,radialVelocity:-.12,tangentialVelocity:0,expectedOutcome:'capture'},
   flyby:{key:'flyby',name:'Flyby',description:'Unbound encounter with strong gravitational deflection',radius:40,radialVelocity:-.34,tangentialVelocity:.28,expectedOutcome:'escape'},
   encounter:{key:'encounter',name:'Orbital encounter',description:'Close angular-momentum-supported encounter',radius:12,radialVelocity:-.08,tangentialVelocity:.38,expectedOutcome:'bound'},

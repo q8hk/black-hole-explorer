@@ -15,13 +15,15 @@ uniform vec2 u_look;
 uniform int u_maxSteps;
 uniform float u_cutoff;
 uniform int u_debug;
+uniform float u_starDensity;
+uniform float u_exposure;
 
 float hash21(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }
 vec3 sky(vec3 d){
   d=normalize(d); float lon=atan(d.z,d.x)/6.2831853+.5; float lat=asin(clamp(d.y,-1.,1.))/3.1415926+.5;
   vec2 cell=floor(vec2(lon*900.,lat*450.)); vec2 f=fract(vec2(lon*900.,lat*450.)); float h=hash21(cell);
   vec2 q=vec2(hash21(cell+1.7),hash21(cell+8.3)); float dist=length(f-q);
-  float star=smoothstep(.045,.0,dist)*step(.972,h)*pow((h-.972)/.028,1.8)*5.;
+  float threshold=mix(.986,.94,u_starDensity); float star=smoothstep(.045,.0,dist)*step(threshold,h)*pow((h-threshold)/(1.-threshold),1.8)*5.;
   float temp=hash21(cell+21.); vec3 tint=mix(vec3(.55,.72,1.),vec3(1.,.72,.42),temp);
   float band=exp(-pow(abs(dot(d,normalize(vec3(.13,.91,.38))))/.12,1.35))*(.018+.035*hash21(cell*.17));
   float nebula=pow(max(0.,1.-abs(dot(d,normalize(vec3(-.62,.18,.76))))),7.)*(.025+.045*hash21(cell*.09));
@@ -54,16 +56,19 @@ void main(){
   float cy=cos(u_look.x),sy=sin(u_look.x),cp=cos(u_look.y),sp=sin(u_look.y);
   d=vec3(cy*d.x-sy*d.z,d.y,sy*d.x+cy*d.z); d=vec3(d.x,cp*d.y-sp*d.z,sp*d.y+cp*d.z);
   vec4 k=u_tetrad[0]+d.z*u_tetrad[1]+d.x*u_tetrad[2]+d.y*u_tetrad[3];
-  vec4 p=gcov(u_camera)*k; vec3 x=u_camera; float maxDrift=0.; float steps=0.; bool captured=false; bool escaped=false;
+  vec4 p=gcov(u_camera)*k; vec3 x=u_camera; float maxDrift=0.; float steps=0.; bool captured=false; bool escaped=false; bool diskHit=false; vec3 diskColor=vec3(0.);
   for(int i=0;i<320;i++){
     if(i>=u_maxSteps) break; float r=length(x); if(r<u_cutoff){captured=true;break;} if(r>80.){escaped=true;break;}
     vec3 dx,dp; deriv(x,p,dx,dp); float h=-min(.8,max(.006,.11*max(r-1.75,.08)/max(length(dx),.2)));
-    rk4(x,p,h); maxDrift=max(maxDrift,abs(H(x,p))); steps+=1.; if(any(isnan(x))||any(isinf(x))){captured=true;break;}
+    rk4(x,p,h); float diskR=length(x.xy); float diskThickness=.008+.001*diskR;
+    if(!diskHit&&diskR>3.15&&diskR<9.0&&abs(x.z)<diskThickness){float heat=pow(3.15/diskR,.72);float grain=.82+.18*hash21(floor(x.xy*22.));diskColor=mix(vec3(1.8,.22,.025),vec3(1.4,1.05,.58),heat)*(.45+2.1*heat)*grain;diskHit=true;}
+    maxDrift=max(maxDrift,abs(H(x,p))); steps+=1.; if(any(isnan(x))||any(isinf(x))){captured=true;break;}
   }
   if(u_debug==1){ outColor=vec4(vec3(steps/float(u_maxSteps)),1.); return; }
   if(u_debug==2){ float e=clamp((log(maxDrift+1e-9)/log(10.)+9.)/6.,0.,1.); outColor=vec4(e,1.-e,.1,1.); return; }
   vec3 col=escaped?sky(normalize(x)):vec3(.00015,.0003,.00045);
-  if(!escaped&&!captured) col=mix(col,vec3(.05,.022,.006),.45);
+  if(diskHit) col=diskColor;
+  if(!escaped&&!captured&&!diskHit) col=sky(normalize(x))*.42;
   float vignette=1.-.28*dot(ndc,ndc); col*=vignette;
-  col=col/(col+vec3(1.)); col=pow(col,vec3(1./2.2)); outColor=vec4(col,1.);
+  col*=u_exposure; col=col/(col+vec3(1.)); col=pow(col,vec3(1./2.2)); outColor=vec4(col,1.);
 }`;
