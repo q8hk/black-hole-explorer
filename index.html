@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#03070a" />
+    <meta name="description" content="An interactive Schwarzschild black-hole explorer using numerical null geodesics." />
+    <title>Relativistic Black Hole Explorer</title>
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="spacetime" aria-label="General-relativistic view from the observer"></canvas>
+      <div id="unsupported" hidden>
+        <h1>WebGL2 is required</h1>
+        <p>This device cannot run the null-geodesic renderer. Try a current desktop or mobile browser.</p>
+      </div>
+
+      <header class="topbar glass">
+        <div class="identity">
+          <span class="eyebrow">SCHWARZSCHILD · VACUUM</span>
+          <strong>RELATIVISTIC EXPLORER</strong>
+        </div>
+        <div class="clock-block">
+          <span>PROPER TIME τ</span>
+          <b id="proper-time">0.000 s</b>
+        </div>
+        <button id="pause" class="icon-button" aria-label="Pause simulation">Ⅱ</button>
+        <button id="panel-toggle" class="icon-button" aria-label="Open scientific panel">☰</button>
+      </header>
+
+      <section class="status-rail glass" aria-label="Primary measurements">
+        <div><span>WORLDLINE</span><b id="worldline">STATION KEEP</b></div>
+        <div><span>AREAL RADIUS</span><b id="radius">12.000 M</b></div>
+        <div><span>HORIZON</span><b id="horizon">OUTSIDE</b></div>
+        <div><span>LOCAL SPEED</span><b id="speed">0.000 c</b></div>
+      </section>
+
+      <div class="center-reticle" aria-hidden="true"><i></i><i></i></div>
+
+      <aside id="science-panel" class="science-panel glass" aria-label="Scientific controls">
+        <div class="panel-head">
+          <div><span class="eyebrow">OBSERVER STATE</span><h1>Scientific model</h1></div>
+          <button id="panel-close" class="icon-button" aria-label="Close scientific panel">×</button>
+        </div>
+
+        <label class="field">Scenario
+          <select id="scenario">
+            <option value="sgr">Sagittarius A* · horizon crossing</option>
+            <option value="stellar">10 M☉ · tidal encounter</option>
+            <option value="hundred">100 M☉ · free fall</option>
+            <option value="m87">M87* scale · gentle horizon</option>
+            <option value="photon">Photon sphere demonstration</option>
+            <option value="isco">ISCO radius</option>
+            <option value="hover">Near-horizon station keep</option>
+          </select>
+        </label>
+
+        <div class="segmented" role="group" aria-label="Observer type">
+          <button data-entity="probe" class="active">PROBE</button>
+          <button data-entity="astronaut">ASTRONAUT</button>
+        </div>
+
+        <div class="action-row">
+          <button id="release" class="primary">ENGINE CUTOFF · FREE FALL</button>
+          <button id="stabilize">STATION KEEP</button>
+        </div>
+
+        <label class="field">Time rate <output id="time-rate-label">1×</output>
+          <input id="time-rate" type="range" min="-2" max="3" step="1" value="0" />
+        </label>
+        <label class="field">Render quality
+          <select id="quality">
+            <option value="low">LOW · 72 steps / 50%</option>
+            <option value="medium" selected>MEDIUM · 112 steps / 67%</option>
+            <option value="high">HIGH · 168 steps / 82%</option>
+            <option value="scientific">SCIENTIFIC · 256 steps / 100%</option>
+          </select>
+        </label>
+
+        <div class="readout-grid">
+          <div><span>Mass</span><b id="mass">4.30 × 10⁶ M☉</b></div>
+          <div><span>r / rₛ</span><b id="rs-ratio">6.000</b></div>
+          <div><span>Radius</span><b id="radius-km">76.2 million km</b></div>
+          <div><span>Required hover a</span><b id="hover-a">—</b></div>
+          <div><span>Radial tide / 1.8 m</span><b id="tide">—</b></div>
+          <div><span>Constraint |H+½|</span><b id="drift">—</b></div>
+          <div><span>Coordinate chart</span><b>Kerr–Schild (ingoing)</b></div>
+          <div><span>Ray model</span><b>Null Hamiltonian · RK4</b></div>
+        </div>
+
+        <details id="explain"><summary>Explain what I’m seeing</summary><p id="explanation"></p></details>
+        <details><summary>Model integrity</summary><p>The metric and geodesic equations are exact Schwarzschild GR. GPU rays are finite-step float32 calculations. The star positions are deterministic but invented. Camera-axis transport is continuity-stabilized, not yet full Fermi–Walker transport.</p></details>
+        <nav class="doc-links"><a href="./PHYSICS.md">Physics</a><a href="./LIMITATIONS.md">Limitations</a><a href="./REFERENCES.md">References</a></nav>
+      </aside>
+
+      <section id="dual-panel" class="dual-panel glass" aria-label="Distant observer signal experiment">
+        <div class="panel-head"><div><span class="eyebrow">CAUSAL SIGNAL EXPERIMENT</span><h2>Distant receiver</h2></div><button id="dual-close" class="icon-button" aria-label="Close dual observer mode">×</button></div>
+        <canvas id="signal-chart" width="520" height="180"></canvas>
+        <div class="receiver-readouts">
+          <div><span>Last pulse</span><b id="pulse-id">—</b></div>
+          <div><span>ν received / ν emitted</span><b id="frequency">—</b></div>
+          <div><span>Signal delay</span><b id="delay">—</b></div>
+        </div>
+        <p>Pulses are emitted once per second of probe proper time. Only outward radial null rays emitted outside the horizon can reach this receiver.</p>
+      </section>
+
+      <div class="bottom-controls">
+        <button id="dual-toggle">DUAL OBSERVER</button>
+        <button id="step">STEP</button>
+        <button id="reset">RESET</button>
+      </div>
+
+      <div class="touch-controls" aria-label="Touch thruster controls">
+        <button data-thrust="forward">▲</button>
+        <button data-thrust="left">◀</button>
+        <button data-thrust="back">▼</button>
+        <button data-thrust="right">▶</button>
+      </div>
+      <div id="toast" role="status" aria-live="polite"></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
